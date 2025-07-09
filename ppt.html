@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Guide Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Subtle gradient background */
+            color: #e2e8f0; /* Light text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars for the body */
+            /* Apply glassmorphism directly to the body for full-page effect */
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+        .presentation-container {
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            background: rgba(255, 255, 255, 0.05); /* Translucent background for content area */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Ensure content stays within bounds */
+            position: relative; /* For absolute positioning of elements */
+        }
+        #slides-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 0; /* Ensures proper flex distribution */
+        }
+        .slide-content {
+            padding: 2.5rem 5rem; /* Increased padding for full-page slides */
+            flex-grow: 1;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to top */
+            align-items: flex-start; /* Align content to left */
+            opacity: 0;
+            transition: opacity 0.7s ease-in-out;
+            overflow-y: auto; /* Allow scrolling for long slides */
+            line-height: 1.7; /* Improved readability */
+            position: relative;
+            z-index: 10; /* Ensure content is above background elements */
+            background: rgba(255, 255, 255, 0.02); /* Even lighter, more transparent for slide content */
+            min-height: 0; /* Allow flex item to shrink and enable overflow-y */
+            box-sizing: border-box; /* Include padding in the element's total width and height */
+        }
+        .slide-content.active {
+            display: flex;
+            opacity: 1;
+            height: 100%; /* Explicitly set height to 100% when active to help overflow calculation */
+        }
+        .slide-content h2 {
+            font-size: 2.8rem; /* Larger heading */
+            font-weight: 800;
+            margin-bottom: 1.8rem;
+            color: #81e6d9; /* Teal heading color */
+            text-align: center; /* Center slide titles */
+            width: 100%;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .slide-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: #9f7aea; /* Purple subheading color */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .slide-content ul {
+            list-style-type: disc;
+            margin-left: 2.5rem; /* Increased indent */
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            color: #cbd5e0;
+        }
+        .slide-content ol {
+            list-style-type: decimal;
+            margin-left: 2.5rem; /* Increased indent */
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            color: #cbd5e0;
+        }
+        .slide-content li {
+            margin-bottom: 0.6rem;
+        }
+        .slide-content p {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: #cbd5e0;
+        }
+        .slide-content pre {
+            background: rgba(0, 0, 0, 0.3); /* Darker, more opaque background for code */
+            padding: 1.8rem; /* Increased padding */
+            border-radius: 1rem; /* More rounded */
+            overflow-x: auto; /* Allow horizontal scrolling for long code lines */
+            width: 100%;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            margin-top: 1.8rem;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+        }
+        .slide-content code {
+            color: #a0aec0; /* Lighter gray for code text */
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospaced font for code */
+        }
+        .slide-content .code-comment {
+            color: #68d391; /* Green for comments */
+        }
+        .slide-content .code-keyword {
+            color: #fc8181; /* Red for keywords */
+        }
+        .slide-content .code-string {
+            color: #f6ad55; /* Orange for strings */
+        }
+        .slide-content .code-number {
+            color: #81e6d9; /* Teal for numbers */
+        }
+        .slide-content strong {
+            color: #f6e05e; /* Yellow for strong text */
+        }
+        .slide-content .icon {
+            font-size: 3.5rem;
+            color: #63b3ed;
+            margin-bottom: 1.5rem;
+        }
+        .slide-content .main-title-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+        .slide-content .subtitle-text {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #a0aec0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem; /* Increased horizontal padding */
+            background: rgba(255, 255, 255, 0.05); /* Translucent background for nav */
+            backdrop-filter: blur(20px); /* Glassmorphism blur effect */
+            -webkit-backdrop-filter: blur(20px); /* For Safari */
+            border-top: 1px solid rgba(255, 255, 255, 0.18); /* Border on top */
+            box-shadow: 0 -8px 32px 0 rgba(0, 0, 0, 0.37); /* Glassmorphism shadow */
+            z-index: 20; /* Ensure nav is on top */
+        }
+        .nav-button {
+            background: rgba(66, 153, 225, 0.7); /* Blue with transparency */
+            color: white;
+            padding: 0.85rem 1.8rem; /* Larger buttons */
+            border-radius: 1rem; /* More rounded */
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Floating effect */
+        }
+        .nav-button:hover {
+            background: rgba(49, 130, 206, 0.8); /* Darker blue on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        }
+        .nav-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        .nav-button:disabled {
+            background: rgba(160, 174, 192, 0.5); /* Gray when disabled */
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .slide-counter {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #cbd5e0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .presentation-container {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+            .slide-content {
+                padding: 1.5rem 2rem; /* Adjusted responsive padding */
+            }
+            .slide-content h2 {
+                font-size: 2.2rem;
+                margin-bottom: 1.2rem;
+            }
+            .slide-content h3 {
+                font-size: 1.6rem;
+                margin-top: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+            .slide-content ul, .slide-content ol, .slide-content p {
+                font-size: 1rem;
+                margin-left: 1.5rem;
+            }
+            .slide-content li {
+                margin-bottom: 0.4rem;
+            }
+            .slide-content pre {
+                padding: 1.2rem;
+                font-size: 0.85rem;
+                margin-top: 1.2rem;
+            }
+            .slide-content .icon {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+            }
+            .slide-content .main-title-text {
+                font-size: 3rem;
+            }
+            .slide-content .subtitle-text {
+                font-size: 1.8rem;
+            }
+            .navigation-bar {
+                padding: 1rem 2rem;
+                border-radius: 0;
+            }
+            .nav-button {
+                padding: 0.7rem 1.4rem;
+                font-size: 0.9rem;
+            }
+            .slide-counter {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Centering content for specific slides (e.g., title slides) */
+        .slide-content.center-content {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div id="slides-container" class="flex-grow flex flex-col">
+
+            <!-- Slide 1: Title Slide -->
+            <div class="slide-content center-content" id="slide-0">
+                <i class="fas fa-terminal icon"></i>
+                <p class="main-title-text mb-4">C Language Bootcamp</p>
+                <p class="subtitle-text">Your First Step into Coding Adventures</p>
+                <p class="subtitle-text">with</p>
+                <p class="subtitle-text" style="color: white;">WE GUIDE LABS</p>
+                <p class="mt-8 text-lg text-gray-400">Ready to build amazing things?</p>
+            </div>
+
+            <!-- Slide 2: What is Programming? -->
+            <div class="slide-content" id="slide-1">
+                <h2>What is Programming?</h2>
+                <i class="fas fa-robot icon"></i>
+                <p>Imagine you have a robot, and you want it to do something special, like make a sandwich or fly a kite.</p>
+                <p><strong>Programming is like writing a super-detailed instruction manual for that robot!</strong></p>
+                <ul>
+                    <li>We write instructions for computers.</li>
+                    <li>Computers follow these instructions step-by-step.</li>
+                    <li>These instructions are called "code."</li>
+                    <li>It's how we tell computers what to do!</li>
+                </ul>
+            </div>
+
+            <!-- Slide 3: Why Learn C? (Fun Applications) -->
+            <div class="slide-content" id="slide-2">
+                <h2>Why Learn C? It's a Superpower!</h2>
+                <i class="fas fa-gamepad icon"></i>
+                <p>C is like a secret language that helps you understand how computers really work. It's super powerful!</p>
+                <ul>
+                    <li><strong>Build Games:</strong> Many cool games are made using C or languages similar to C.</li>
+                    <li><strong>Control Robots:</strong> C is used to program tiny computers inside robots and smart devices.</li>
+                    <li><strong>Make Operating Systems:</strong> Like Windows or macOS – the very core of these systems is built with C!</li>
+                    <li><strong>Fast and Efficient:</strong> C programs run super quickly, like a speedy race car!</li>
+                </ul>
+            </div>
+
+            <!-- Slide 4: A Brief History of C -->
+            <div class="slide-content" id="slide-3">
+                <h2>A Brief History of C: The Story</h2>
+                <i class="fas fa-book-open icon"></i>
+                <p>Once upon a time, a clever person named <strong>Dennis Ritchie</strong> created C in a place called Bell Labs.</p>
+                <ul>
+                    <li>It was made to help build a new computer operating system called <strong>Unix</strong>.</li>
+                    <li>Think of it as a language that helped computers talk to each other better.</li>
+                    <li>C has been around for a long time, and it's still super important today!</li>
+                </ul>
+                <p class="mt-4 text-sm text-gray-400">It's like the grandparent of many modern programming languages!</p>
+            </div>
+
+            <!-- Slide 5: What C is Used For (Visuals) -->
+            <div class="slide-content" id="slide-4">
+                <h2>C is Everywhere!</h2>
+                <div class="grid grid-cols-2 gap-6 mt-4">
+                    <div class="flex flex-col items-center text-center p-4 bg-gray-700 rounded-lg shadow-md">
+                        <i class="fas fa-desktop text-5xl text-blue-400 mb-2"></i>
+                        <p class="font-semibold text-lg">Operating Systems</p>
+                        <p class="text-sm text-gray-300">Windows, Linux, macOS core</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center p-4 bg-gray-700 rounded-lg shadow-md">
+                        <i class="fas fa-microchip text-5xl text-green-400 mb-2"></i>
+                        <p class="font-semibold text-lg">Embedded Systems</p>
+                        <p class="text-sm text-gray-300">Smart devices, robots, IoT</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center p-4 bg-gray-700 rounded-lg shadow-md">
+                        <i class="fas fa-gamepad text-5xl text-purple-400 mb-2"></i>
+                        <p class="font-semibold text-lg">Game Development</p>
+                        <p class="text-sm text-gray-300">Game engines, graphics</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center p-4 bg-gray-700 rounded-lg shadow-md">
+                        <i class="fas fa-database text-5xl text-yellow-400 mb-2"></i>
+                        <p class="font-semibold text-lg">Databases</p>
+                        <p class="text-sm text-gray-300">MySQL, PostgreSQL</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Your First C Program: "Hello, World!" -->
+            <div class="slide-content" id="slide-5">
+                <h2>Your First C Program: "Hello, World!"</h2>
+                <i class="fas fa-code icon"></i>
+                <p>Let's write our very first C program! It's a tradition to start with "Hello, World!"</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt; // This line helps us talk to the screen!
+
+int main() {       // This is where our program starts running.
+    printf("Hello, World!\n"); // This tells the computer to show "Hello, World!"
+    return 0;      // This tells the computer we're done and everything went well.
+}
+                </code></pre>
+                <p class="text-sm mt-4">Every line has a special job!</p>
+            </div>
+
+            <!-- Slide 7: How Computers Understand C (Compilation - Simplified) -->
+            <div class="slide-content" id="slide-6">
+                <h2>How Computers Understand C: The Translator</h2>
+                <i class="fas fa-language icon"></i>
+                <p>Computers don't understand C directly. They need a translator called a <strong>compiler</strong>.</p>
+                <ol>
+                    <li>You write C code (like a story in English).</li>
+                    <li>The compiler translates your C code into "machine code" (like a robot's language).</li>
+                    <li>The computer then runs the machine code!</li>
+                </ol>
+                <p class="mt-4">Think of the compiler as a super-smart translator!</p>
+            </div>
+
+            <!-- Slide 8: Setting Up Your C Environment -->
+            <div class="slide-content" id="slide-7">
+                <h2>Setting Up Your C Tools</h2>
+                <i class="fas fa-tools icon"></i>
+                <p>To write and run C programs, you'll need a few tools:</p>
+                <ul>
+                    <li><strong>Text Editor / IDE:</strong> Where you type your code (like Notepad, VS Code, Code::Blocks).</li>
+                    <li><strong>Compiler:</strong> The translator (like GCC).</li>
+                </ul>
+                <p class="mt-4 text-sm text-gray-400">We'll help you get these set up on your computer!</p>
+            </div>
+
+            <!-- Slide 9: Running Your First Program (Steps) -->
+            <div class="slide-content" id="slide-8">
+                <h2>Running Your First Program: Let's Go!</h2>
+                <i class="fas fa-play icon"></i>
+                <p>After writing your "Hello, World!" code, here's how to run it:</p>
+                <ol>
+                    <li><strong>Save:</strong> Save your code as `hello.c` (the `.c` is important!).</li>
+                    <li><strong>Compile:</strong> Open your command line (like a text-based computer control panel) and type: <code class="bg-gray-700 p-1 rounded-md">gcc hello.c -o hello</code></li>
+                    <li><strong>Run:</strong> Type: <code class="bg-gray-700 p-1 rounded-md">./hello</code></li>
+                </ol>
+                <p class="mt-4">You should see "Hello, World!" appear on your screen!</p>
+            </div>
+
+            <!-- Slide 10: Practice Challenge 1: Change "Hello World!" -->
+            <div class="slide-content center-content" id="slide-9">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-lightbulb icon"></i>
+                <p class="text-2xl font-semibold mb-4">Your first coding quest:</p>
+                <p class="text-xl">Change the "Hello, World!" program to say:</p>
+                <p class="text-3xl font-bold text-yellow-400 my-6">"Hello, [Your Name]!"</p>
+                <p class="text-xl">Then, run it and show your awesome work!</p>
+            </div>
+
+            <!-- Module 2: Building Blocks of C (Slides 11-25) -->
+            <!-- Slide 11: C's Vocabulary: Keywords & Identifiers -->
+            <div class="slide-content" id="slide-10">
+                <h2>C's Vocabulary: Keywords & Identifiers</h2>
+                <i class="fas fa-spell-check icon"></i>
+                <h3>Keywords: Special Words</h3>
+                <ul>
+                    <li>Words C already understands, like `int` or `return`.</li>
+                    <li>You can't use them for other things.</li>
+                </ul>
+                <h3>Identifiers: Your Own Names</h3>
+                <ul>
+                    <li>Names you choose for your "boxes" or "instructions."</li>
+                    <li>Like `myAge`, `calculateScore`.</li>
+                    <li>Must start with a letter or underscore.</li>
+                    <li>Are case-sensitive (`myVar` is different from `myvar`).</li>
+                </ul>
+            </div>
+
+            <!-- Slide 12: C's Smallest Pieces: Tokens -->
+            <div class="slide-content" id="slide-11">
+                <h2>C's Smallest Pieces: Tokens</h2>
+                <i class="fas fa-puzzle-piece icon"></i>
+                <p>Imagine a sentence. It's made of words, punctuation, and numbers. In C, these small pieces are called <strong>Tokens</strong>.</p>
+                <ul>
+                    <li><strong>Keywords:</strong> (`int`, `if`, `for`)</li>
+                    <li><strong>Identifiers:</strong> (`myVariable`, `addNumbers`)</li>
+                    <li><strong>Constants:</strong> (`10`, `3.14`, `'A'`)</li>
+                    <li><strong>Strings:</strong> (`"Hello"`)</li>
+                    <li><strong>Operators:</strong> (`+`, `-`, `=`, `==`)</li>
+                    <li><strong>Punctuation:</strong> (`;`, `{`, `}`)</li>
+                </ul>
+                <p class="mt-4">The compiler breaks your code into these tiny tokens!</p>
+            </div>
+
+            <!-- Slide 13: Storing Information: Variables -->
+            <div class="slide-content" id="slide-12">
+                <h2>Storing Information: Variables</h2>
+                <i class="fas fa-box icon"></i>
+                <p>Think of a variable as a <strong>named box</strong> where you can store different kinds of information.</p>
+                <ul>
+                    <li>Each box has a <strong>name</strong> (like `age`, `score`).</li>
+                    <li>Each box can hold a <strong>value</strong> (like `10`, `100`).</li>
+                    <li>The value inside the box can <strong>change</strong>!</li>
+                </ul>
+                <pre><code class="language-c">
+int age = 12; // A box named 'age' holding the number 12
+age = 13;     // Now the 'age' box holds 13!
+                </code></pre>
+            </div>
+
+            <!-- Slide 14: Declaring Variables -->
+            <div class="slide-content" id="slide-13">
+                <h2>Declaring Variables: Making a New Box</h2>
+                <i class="fas fa-plus-square icon"></i>
+                <p>Before you can use a box, you need to tell C what kind of stuff it will hold. This is called <strong>declaring</strong> a variable.</p>
+                <ul>
+                    <li>You tell C the <strong>type</strong> of data (like `int` for whole numbers).</li>
+                    <li>You give it a <strong>name</strong>.</li>
+                    <li>You can also put something in it right away (<strong>initialize</strong>).</li>
+                </ul>
+                <pre><code class="language-c">
+int myScore; // Declared a box for a whole number, named 'myScore'
+myScore = 500; // Put 500 into the 'myScore' box
+
+float price = 19.99f; // Declared a box for a decimal, named 'price', and put 19.99 in it
+                </code></pre>
+            </div>
+
+            <!-- Slide 15: Different Types of Boxes: Data Types -->
+            <div class="slide-content" id="slide-14">
+                <h2>Different Types of Boxes: Data Types</h2>
+                <i class="fas fa-cubes icon"></i>
+                <p>Just like you have different containers for different things (a lunchbox for sandwiches, a jar for cookies), C has different <strong>data types</strong> for different kinds of information.</p>
+                <ul>
+                    <li><strong>`int`</strong> for whole numbers (like `10`, `500`, `-3`).</li>
+                    <li><strong>`char`</strong> for single letters or symbols (like `'A'`, `'z'`, `'!'`).</li>
+                    <li><strong>`float`</strong> and <strong>`double`</strong> for numbers with decimals (like `3.14`, `99.99`).</li>
+                </ul>
+            </div>
+
+            <!-- Slide 16: `int` - Whole Numbers -->
+            <div class="slide-content" id="slide-15">
+                <h2>`int`: Whole Numbers</h2>
+                <i class="fas fa-hashtag icon"></i>
+                <p>The `int` data type is used to store <strong>whole numbers</strong> (integers).</p>
+                <ul>
+                    <li>No decimal points allowed!</li>
+                    <li>Can be positive, negative, or zero.</li>
+                    <li>Great for counting things, ages, scores.</li>
+                </ul>
+                <pre><code class="language-c">
+int numberOfApples = 5;
+int myAge = 10;
+int temperature = -3;
+                </code></pre>
+            </div>
+
+            <!-- Slide 17: `char` - Single Letters -->
+            <div class="slide-content" id="slide-16">
+                <h2>`char`: Single Letters</h2>
+                <i class="fas fa-font icon"></i>
+                <p>The `char` data type is used to store a <strong>single character</strong> (a letter, a number, or a symbol).</p>
+                <ul>
+                    <li>Always put single characters in <strong>single quotes</strong> (`' '`).</li>
+                    <li>Can also store very small whole numbers.</li>
+                </ul>
+                <pre><code class="language-c">
+char firstLetter = 'J';
+char grade = 'A';
+char symbol = '#';
+                </code></pre>
+            </div>
+
+            <!-- Slide 18: `float` & `double` - Decimal Numbers -->
+            <div class="slide-content" id="slide-17">
+                <h2>`float` & `double`: Decimal Numbers</h2>
+                <i class="fas fa-calculator icon"></i>
+                <p>When you need to store numbers with <strong>decimal points</strong>, use `float` or `double`.</p>
+                <ul>
+                    <li><strong>`float`</strong> is good for most decimal numbers.</li>
+                    <li><strong>`double`</strong> is for super-precise decimal numbers (it uses more memory but is more accurate).</li>
+                </ul>
+                <pre><code class="language-c">
+float pi = 3.14f;
+double exactValue = 123.456789;
+float price = 9.99f; // Add 'f' for float literals!
+                </code></pre>
+            </div>
+
+            <!-- Slide 19: Fixed Boxes: Constants -->
+            <div class="slide-content" id="slide-18">
+                <h2>Fixed Boxes: Constants</h2>
+                <i class="fas fa-lock icon"></i>
+                <p>Sometimes you have values that should <strong>never change</strong> in your program. These are called <strong>constants</strong>.</p>
+                <ul>
+                    <li>Like the number of days in a week (always 7).</li>
+                    <li>Makes your code clearer and prevents mistakes.</li>
+                </ul>
+                <h3>Two ways to make constants:</h3>
+                <ul>
+                    <li><strong>`const` keyword:</strong> Makes a variable read-only.</li>
+                    <li><strong>`#define` preprocessor:</strong> Replaces a name with a value before your code even compiles.</li>
+                </ul>
+                <pre><code class="language-c">
+#define MAX_SCORE 1000 // MAX_SCORE is always 1000
+const int DAYS_IN_WEEK = 7; // DAYS_IN_WEEK is always 7
+                </code></pre>
+            </div>
+
+            <!-- Slide 20: Getting Input: `scanf()` -->
+            <div class="slide-content" id="slide-19">
+                <h2>Getting Input: `scanf()`</h2>
+                <i class="fas fa-keyboard icon"></i>
+                <p>How do we let the user type something into our program? We use the `scanf()` function!</p>
+                <ul>
+                    <li>It waits for the user to type something and press Enter.</li>
+                    <li>We tell it what kind of data to expect (like `%d` for `int`).</li>
+                    <li>We use `&` (the "address-of" symbol) to tell `scanf` *where* to put the value.</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    int favoriteNumber;
+    printf("What's your favorite number? ");
+    scanf("%d", &favoriteNumber); // Read an integer into 'favoriteNumber'
+    printf("Your favorite number is: %d\n", favoriteNumber);
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 21: Showing Output: `printf()` -->
+            <div class="slide-content" id="slide-20">
+                <h2>Showing Output: `printf()`</h2>
+                <i class="fas fa-monitor icon"></i>
+                <p>We've already met `printf()`! It's how our program talks back to us by showing text on the screen.</p>
+                <ul>
+                    <li>You put the text you want to show inside `""`.</li>
+                    <li>Use <strong>Format Specifiers</strong> like `%d`, `%f`, `%c`, `%s` to show values from variables.</li>
+                    <li>Use <strong>Escape Sequences</strong> like `\n` for a new line, `\t` for a tab.</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    int age = 10;
+    printf("Hello, bootcampers!\n");
+    printf("You are %d years old.\n", age); // Using %d for 'age'
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 22: Doing Math: Arithmetic Operators -->
+            <div class="slide-content" id="slide-21">
+                <h2>Doing Math: Arithmetic Operators</h2>
+                <i class="fas fa-plus-minus icon"></i>
+                <p>Computers are great at math! C has special symbols for basic math operations:</p>
+                <ul>
+                    <li>`+` (Addition)</li>
+                    <li>`-` (Subtraction)</li>
+                    <li>`*` (Multiplication)</li>
+                    <li>`/` (Division)</li>
+                    <li>`%` (Modulo - gives the remainder after division)</li>
+                </ul>
+                <pre><code class="language-c">
+int num1 = 10;
+int num2 = 3;
+int sum = num1 + num2; // sum will be 13
+int remainder = num1 % num2; // remainder will be 1 (10 divided by 3 is 3 with 1 left over)
+                </code></pre>
+            </div>
+
+            <!-- Slide 23: Comparing Things: Relational Operators -->
+            <div class="slide-content" id="slide-22">
+                <h2>Comparing Things: Relational Operators</h2>
+                <i class="fas fa-equals icon"></i>
+                <p>Sometimes you need to compare values, like "Is this number bigger than that one?" or "Are these two numbers the same?"</p>
+                <ul>
+                    <li>`==` (Is equal to?)</li>
+                    <li>`!=` (Is NOT equal to?)</li>
+                    <li>`<` (Is less than?)</li>
+                    <li>`>` (Is greater than?)</li>
+                    <li>`<=` (Is less than or equal to?)</li>
+                    <li>`>=` (Is greater than or equal to?)</li>
+                </ul>
+                <pre><code class="language-c">
+int score = 90;
+if (score >= 90) {
+    printf("Great job!\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 24: Combining Conditions: Logical Operators -->
+            <div class="slide-content" id="slide-23">
+                <h2>Combining Conditions: Logical Operators</h2>
+                <i class="fas fa-handshake icon"></i>
+                <p>What if you have multiple conditions? Like "If it's sunny AND it's warm..."</p>
+                <ul>
+                    <li>`&&` (AND): Both conditions must be true.</li>
+                    <li>`||` (OR): At least one condition must be true.</li>
+                    <li>`!` (NOT): Reverses a condition (true becomes false, false becomes true).</li>
+                </ul>
+                <pre><code class="language-c">
+int age = 10;
+char hasTicket = 'Y';
+if (age >= 8 && hasTicket == 'Y') {
+    printf("You can enter the show!\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 25: Practice Challenge 2: Calculator Fun -->
+            <div class="slide-content center-content" id="slide-24">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-calculator icon"></i>
+                <p class="text-2xl font-semibold mb-4">Build a super simple calculator!</p>
+                <p class="text-xl">Ask the user for two numbers.</p>
+                <p class="text-xl">Then, print their sum, difference, product, and quotient.</p>
+                <p class="text-xl font-bold text-yellow-400 my-6">Example: 10 + 5 = 15</p>
+            </div>
+
+            <!-- Module 3: Making Decisions (Slides 26-35) -->
+            <!-- Slide 26: Smart Programs: Decision Making -->
+            <div class="slide-content" id="slide-25">
+                <h2>Smart Programs: Decision Making</h2>
+                <i class="fas fa-route icon"></i>
+                <p>Imagine your program is at a crossroads. It needs to decide which path to take based on certain rules.</p>
+                <ul>
+                    <li>Decision making lets your program choose different actions.</li>
+                    <li>It's like telling your program: "If this is true, do A; otherwise, do B."</li>
+                </ul>
+                <p class="mt-4">This makes your programs much more intelligent and useful!</p>
+            </div>
+
+            <!-- Slide 27: The `if` Statement: "If this, then that!" -->
+            <div class="slide-content" id="slide-26">
+                <h2>The `if` Statement: "If this, then that!"</h2>
+                <i class="fas fa-check-circle icon"></i>
+                <p>The simplest decision-maker. It checks a condition, and if it's true, it does something.</p>
+                <pre><code class="language-c">
+int sunny = 1; // 1 means true, 0 means false
+if (sunny == 1) {
+    printf("Let's go play outside!\n");
+}
+                </code></pre>
+                <ul>
+                    <li>If `sunny` is true, the message prints.</li>
+                    <li>If `sunny` is false, nothing happens.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 28: The `if-else` Statement: "If this, or else that!" -->
+            <div class="slide-content" id="slide-27">
+                <h2>The `if-else` Statement: "If this, or else that!"</h2>
+                <i class="fas fa-exchange-alt icon"></i>
+                <p>This gives your program two choices: one if the condition is true, and another if it's false.</p>
+                <pre><code class="language-c">
+int isRaining = 0;
+if (isRaining == 1) {
+    printf("Grab an umbrella!\n");
+} else {
+    printf("No umbrella needed!\n");
+}
+                </code></pre>
+                <ul>
+                    <li>One path will *always* be taken.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 29: Multiple Choices: `if-else if-else` Chain -->
+            <div class="slide-content" id="slide-28">
+                <h2>Multiple Choices: `if-else if-else` Chain</h2>
+                <i class="fas fa-list-ul icon"></i>
+                <p>What if you have many options? Like grading a test: A, B, C, or F?</p>
+                <pre><code class="language-c">
+int score = 85;
+if (score >= 90) {
+    printf("Grade: A\n");
+} else if (score >= 80) {
+    printf("Grade: B\n");
+} else if (score >= 70) {
+    printf("Grade: C\n");
+} else {
+    printf("Grade: F\n");
+}
+                </code></pre>
+                <ul>
+                    <li>The program checks conditions one by one.</li>
+                    <li>It stops at the first one that is true.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 30: Nested Decisions -->
+            <div class="slide-content" id="slide-29">
+                <h2>Nested Decisions: Decisions Inside Decisions!</h2>
+                <i class="fas fa-layer-group icon"></i>
+                <p>You can put an `if` statement inside another `if` statement. This is called nesting.</p>
+                <pre><code class="language-c">
+int hasKey = 1;
+int doorLocked = 1;
+if (hasKey == 1) {
+    if (doorLocked == 1) {
+        printf("Unlocking the door!\n");
+    } else {
+        printf("Door is already open.\n");
+    }
+} else {
+    printf("No key, can't open.\n");
+}
+                </code></pre>
+                <p class="mt-4">It helps make very specific choices!</p>
+            </div>
+
+            <!-- Slide 31: Choosing from Many: The `switch` Statement -->
+            <div class="slide-content" id="slide-30">
+                <h2>Choosing from Many: The `switch` Statement</h2>
+                <i class="fas fa-random icon"></i>
+                <p>When you have a single variable and many possible actions based on its value, `switch` is super handy!</p>
+                <pre><code class="language-c">
+char dayCode = 'M';
+switch (dayCode) {
+    case 'M':
+        printf("It's Monday!\n");
+        break; // Don't forget break!
+    case 'T':
+        printf("It's Tuesday!\n");
+        break;
+    default:
+        printf("Unknown day.\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 32: `switch` with `case` and `break` -->
+            <div class="slide-content" id="slide-31">
+                <h2>`switch` with `case` and `break`</h2>
+                <i class="fas fa-sign-out-alt icon"></i>
+                <ul>
+                    <li><strong>`switch (expression)`:</strong> The value we are checking.</li>
+                    <li><strong>`case value:`:</strong> If the expression matches this value, do the code here.</li>
+                    <li><strong>`break;`:</strong> This is super important! It tells the `switch` to stop and jump to the end.</li>
+                    <li><strong>Without `break;`</strong>, the program will keep running into the next `case`! (This is called "fall-through" and can cause bugs!)</li>
+                </ul>
+            </div>
+
+            <!-- Slide 33: `switch` Default Case -->
+            <div class="slide-content" id="slide-32">
+                <h2>`switch` Default Case: The Catch-All</h2>
+                <i class="fas fa-question-circle icon"></i>
+                <p>What if the `switch` expression doesn't match any of your `case` values?</p>
+                <ul>
+                    <li>The `default:` case is like the "else" for `switch`.</li>
+                    <li>It runs if no other `case` matches.</li>
+                    <li>It's optional, but good for handling unexpected values.</li>
+                </ul>
+                <pre><code class="language-c">
+int choice = 5;
+switch (choice) {
+    case 1: printf("You chose option 1.\n"); break;
+    case 2: printf("You chose option 2.\n"); break;
+    default: printf("Please choose 1 or 2.\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 34: Practice Challenge 3: Grade Checker -->
+            <div class="slide-content center-content" id="slide-33">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-award icon"></i>
+                <p class="text-2xl font-semibold mb-4">Make a Grade Checker!</p>
+                <p class="text-xl">Ask the user for a score (0-100).</p>
+                <p class="text-xl">Use `if-else if-else` to tell them their grade:</p>
+                <ul class="list-none text-xl font-bold text-yellow-400 my-6">
+                    <li>90-100: A+</li>
+                    <li>80-89: A</li>
+                    <li>70-79: B</li>
+                    <li>Below 70: C</li>
+                </ul>
+            </div>
+
+            <!-- Slide 35: Quiz: Decision Making -->
+            <div class="slide-content center-content" id="slide-34">
+                <h2>Quick Quiz!</h2>
+                <i class="fas fa-question-circle icon"></i>
+                <p class="text-2xl font-semibold mb-4">What's the main difference between `if-else` and `switch`?</p>
+                <ul class="list-none text-xl mt-6">
+                    <li>(Think about when you'd use each one!)</li>
+                </ul>
+            </div>
+
+            <!-- Module 4: Repeating Actions (Slides 36-45) -->
+            <!-- Slide 36: Doing Things Many Times: Loops -->
+            <div class="slide-content" id="slide-35">
+                <h2>Doing Things Many Times: Loops</h2>
+                <i class="fas fa-redo-alt icon"></i>
+                <p>Imagine you need to print "Hello!" 100 times. Would you type `printf("Hello!\n");` 100 times?</p>
+                <p>No way! Loops let your program repeat actions over and over again. This saves a lot of typing!</p>
+                <ul>
+                    <li>Great for counting.</li>
+                    <li>Great for doing the same thing for many items.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 37: The `while` Loop: "Keep going while..." -->
+            <div class="slide-content" id="slide-36">
+                <h2>The `while` Loop: "Keep going while..."</h2>
+                <i class="fas fa-sync-alt icon"></i>
+                <p>A `while` loop keeps repeating as long as a condition is true.</p>
+                <ul>
+                    <li>It checks the condition <strong>before</strong> each time it runs.</li>
+                    <li>If the condition starts as false, it won't run even once!</li>
+                </ul>
+                <pre><code class="language-c">
+int count = 0;
+while (count < 5) { // While count is less than 5...
+    printf("Count: %d\n", count);
+    count = count + 1; // Don't forget to change count, or it loops forever!
+}
+// Output: Count: 0, Count: 1, Count: 2, Count: 3, Count: 4
+                </code></pre>
+            </div>
+
+            <!-- Slide 38: `while` Loop Example: Counting Up -->
+            <div class="slide-content" id="slide-37">
+                <h2>`while` Loop Example: Counting Up</h2>
+                <i class="fas fa-sort-numeric-up icon"></i>
+                <p>Let's use a `while` loop to count from 1 to 5:</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    int i = 1;
+    while (i <= 5) {
+        printf("%d ", i);
+        i++; // Same as i = i + 1;
+    }
+    printf("\n");
+    return 0;
+}
+// Output: 1 2 3 4 5
+                </code></pre>
+                <p class="mt-4">Remember to change the condition inside the loop, or it will never stop!</p>
+            </div>
+
+            <!-- Slide 39: The `do-while` Loop: "Do once, then keep going while..." -->
+            <div class="slide-content" id="slide-38">
+                <h2>The `do-while` Loop: "Do once, then keep going while..."</h2>
+                <i class="fas fa-arrow-circle-right icon"></i>
+                <p>A `do-while` loop is a bit different:</p>
+                <ul>
+                    <li>It <strong>always runs at least once</strong>.</li>
+                    <li>It checks the condition <strong>after</strong> each time it runs.</li>
+                </ul>
+                <pre><code class="language-c">
+int num = 0;
+do {
+    printf("Enter 5 to exit: ");
+    scanf("%d", &num);
+} while (num != 5); // Keep doing this until num is 5
+// This loop will always ask for input at least once.
+                </code></pre>
+            </div>
+
+            <!-- Slide 40: `do-while` Loop Example: Simple Game Menu -->
+            <div class="slide-content" id="slide-39">
+                <h2>`do-while` Loop Example: Simple Game Menu</h2>
+                <i class="fas fa-gamepad icon"></i>
+                <p>Imagine a simple game menu that always shows up at least once:</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    int choice;
+    do {
+        printf("\n--- Game Menu ---\n");
+        printf("1. Play Game\n");
+        printf("2. Options\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+    } while (choice != 3);
+    printf("Thanks for playing!\n");
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 41: The `for` Loop: "For a specific number of times..." -->
+            <div class="slide-content" id="slide-40">
+                <h2>The `for` Loop: "For a specific number of times..."</h2>
+                <i class="fas fa-list-ol icon"></i>
+                <p>The `for` loop is perfect when you know exactly how many times you want to repeat something.</p>
+                <pre><code class="language-c">
+for (int i = 0; i < 5; i++) {
+    // 1. Start: int i = 0; (Do this once at the beginning)
+    // 2. Keep going while: i < 5; (Check this before each run)
+    // 3. After each run: i++ (Do this after each run)
+    printf("Loop %d\n", i);
+}
+// Output: Loop 0, Loop 1, Loop 2, Loop 3, Loop 4
+                </code></pre>
+                <p class="mt-4">It's very tidy!</p>
+            </div>
+
+            <!-- Slide 42: `for` Loop Example: Times Table -->
+            <div class="slide-content" id="slide-41">
+                <h2>`for` Loop Example: Times Table</h2>
+                <i class="fas fa-times icon"></i>
+                <p>Let's make a simple times table for the number 7!</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    int number = 7;
+    printf("--- %d Times Table ---\n", number);
+    for (int i = 1; i <= 10; i++) {
+        printf("%d x %d = %d\n", number, i, number * i);
+    }
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 43: Stopping Loops Early: `break` -->
+            <div class="slide-content" id="slide-42">
+                <h2>Stopping Loops Early: `break`</h2>
+                <i class="fas fa-stop-circle icon"></i>
+                <p>Sometimes you need to stop a loop *before* it finishes all its planned runs. Use `break`!</p>
+                <ul>
+                    <li>`break` immediately jumps out of the loop.</li>
+                </ul>
+                <pre><code class="language-c">
+for (int i = 0; i < 10; i++) {
+    printf("%d ", i);
+    if (i == 4) {
+        printf("\nFound 4! Breaking loop.\n");
+        break; // Loop stops here
+    }
+}
+// Output: 0 1 2 3 4 (then the message and loop ends)
+                </code></pre>
+            </div>
+
+            <!-- Slide 44: Skipping an Iteration: `continue` -->
+            <div class="slide-content" id="slide-43">
+                <h2>Skipping an Iteration: `continue`</h2>
+                <i class="fas fa-arrow-right icon"></i>
+                <p>What if you want to skip *just one* turn of the loop and go to the next one? Use `continue`!</p>
+                <ul>
+                    <li>`continue` skips the rest of the current loop's code.</li>
+                    <li>Then it goes straight to the next turn (next iteration).</li>
+                </ul>
+                <pre><code class="language-c">
+for (int i = 0; i < 5; i++) {
+    if (i == 2) {
+        printf(" (Skipping 2) ");
+        continue; // Skips printing %d for i=2
+    }
+    printf("%d ", i);
+}
+// Output: 0 1 (Skipping 2) 3 4
+                </code></pre>
+            </div>
+
+            <!-- Slide 45: Practice Challenge 4: Pattern Printing -->
+            <div class="slide-content center-content" id="slide-44">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-shapes icon"></i>
+                <p class="text-2xl font-semibold mb-4">Print a cool pattern!</p>
+                <p class="text-xl">Use `for` loops to print this triangle of stars:</p>
+                <pre class="text-left text-yellow-400 text-2xl font-mono bg-transparent shadow-none p-0">
+*
+**
+***
+****
+*****
+                </pre>
+                <p class="text-xl mt-6">Hint: You might need a loop inside a loop!</p>
+            </div>
+
+            <!-- Module 5: Organizing Your Code: Functions (Slides 46-55) -->
+            <!-- Slide 46: Building Blocks: Functions -->
+            <div class="slide-content" id="slide-45">
+                <h2>Building Blocks: Functions</h2>
+                <i class="fas fa-cubes icon"></i>
+                <p>Imagine building with LEGOs. You don't build the whole castle at once, right?</p>
+                <p>You build small parts: a wall, a tower, a gate. In programming, these small, reusable parts are called <strong>Functions</strong>.</p>
+                <ul>
+                    <li>A function is a block of code that does one specific job.</li>
+                    <li>You can use it over and over again.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 47: Why Use Functions? -->
+            <div class="slide-content" id="slide-46">
+                <h2>Why Use Functions?</h2>
+                <i class="fas fa-magic icon"></i>
+                <ul>
+                    <li><strong>Stay Organized:</strong> Keeps your code neat and tidy.</li>
+                    <li><strong>Reuse Code:</strong> Write code once, use it many times!</li>
+                    <li><strong>Easier to Understand:</strong> Each function does a clear job.</li>
+                    <li><strong>Easier to Fix:</strong> If something breaks, you know which "block" to check.</li>
+                </ul>
+                <p class="mt-4">Functions make your programming life much easier!</p>
+            </div>
+
+            <!-- Slide 48: Function Declaration (Prototype) -->
+            <div class="slide-content" id="slide-47">
+                <h2>Function Declaration: The Plan</h2>
+                <i class="fas fa-clipboard-list icon"></i>
+                <p>Before you use a function, you often need to tell C about it. This is like making a plan or a "prototype."</p>
+                <ul>
+                    <li>It tells C: "Hey, there's a function named `addNumbers` coming, it gives back an `int`, and it needs two `int`s."</li>
+                    <li>It's usually put at the top of your code.</li>
+                </ul>
+                <pre><code class="language-c">
+int addNumbers(int a, int b); // This is a function declaration!
+                </code></pre>
+            </div>
+
+            <!-- Slide 49: Function Definition (Implementation) -->
+            <div class="slide-content" id="slide-48">
+                <h2>Function Definition: The Actual Work</h2>
+                <i class="fas fa-hammer icon"></i>
+                <p>This is where you write the actual code that the function will perform.</p>
+                <ul>
+                    <li>It includes the `return_type`, `function_name`, `parameters`, and the code block `{}`.</li>
+                </ul>
+                <pre><code class="language-c">
+int addNumbers(int num1, int num2) { // This is the function definition!
+    int sum = num1 + num2;
+    return sum; // Send the 'sum' back to where the function was called
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 50: Calling Functions -->
+            <div class="slide-content" id="slide-49">
+                <h2>Calling Functions: Using Your Blocks</h2>
+                <i class="fas fa-play-circle icon"></i>
+                <p>Once you've declared and defined a function, you can "call" it (use it) from other parts of your program, like from `main()`.</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+
+int addNumbers(int a, int b); // Declaration
+
+int main() {
+    int result = addNumbers(5, 3); // Calling the function!
+    printf("The sum is: %d\n", result);
+    return 0;
+}
+
+int addNumbers(int num1, int num2) { // Definition
+    return num1 + num2;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 51: Returning Values from Functions -->
+            <div class="slide-content" id="slide-50">
+                <h2>Returning Values from Functions</h2>
+                <i class="fas fa-reply icon"></i>
+                <p>Many functions do some work and then give you back a result. This is called "returning a value."</p>
+                <ul>
+                    <li>The `return` keyword sends a value back.</li>
+                    <li>The `return_type` in the function's declaration tells you what kind of value it will send back.</li>
+                </ul>
+                <pre><code class="language-c">
+int multiply(int x, int y) {
+    int product = x * y;
+    return product; // Returns the calculated product
+}
+
+int main() {
+    int myResult = multiply(4, 6); // myResult will be 24
+    printf("Result: %d\n", myResult);
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 52: Functions with No Return (`void`) -->
+            <div class="slide-content" id="slide-51">
+                <h2>Functions with No Return (`void`)</h2>
+                <i class="fas fa-print icon"></i>
+                <p>Some functions just do a job, like printing something, and don't need to give back a value. For these, we use `void` as the return type.</p>
+                <pre><code class="language-c">
+void sayHello() { // 'void' means no value is returned
+    printf("Hello from the function!\n");
+}
+
+int main() {
+    sayHello(); // Just calls the function to do its job
+    return 0;
+}
+                </code></pre>
+                <p class="mt-4">They just perform an action!</p>
+            </div>
+
+            <!-- Slide 53: Passing Information: Pass by Value -->
+            <div class="slide-content" id="slide-52">
+                <h2>Passing Information: Pass by Value</h2>
+                <i class="fas fa-copy icon"></i>
+                <p>When you send a variable to a function, C usually makes a <strong>copy</strong> of that variable's value. This is called "pass by value."</p>
+                <ul>
+                    <li>The function gets its own copy to play with.</li>
+                    <li>If the function changes its copy, the original variable outside the function is <strong>not changed</strong>.</li>
+                </ul>
+                <pre><code class="language-c">
+void changeNumber(int x) { // 'x' is a copy of the original number
+    x = x + 10;
+    printf("Inside function, x is: %d\n", x);
+}
+
+int main() {
+    int myNum = 5;
+    printf("Before function, myNum is: %d\n", myNum); // 5
+    changeNumber(myNum); // Pass a copy of myNum
+    printf("After function, myNum is: %d\n", myNum); // Still 5!
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 54: Recursion: Functions Calling Themselves -->
+            <div class="slide-content" id="slide-53">
+                <h2>Recursion: Functions Calling Themselves</h2>
+                <i class="fas fa-infinity icon"></i>
+                <p>Imagine a set of Russian nesting dolls, each doll holding a smaller version of itself. Recursion is like that!</p>
+                <ul>
+                    <li>A function calls itself to solve a problem.</li>
+                    <li>It needs a "stop" rule (<strong>base case</strong>) so it doesn't call itself forever!</li>
+                    <li>Great for problems that can be broken into smaller, similar problems.</li>
+                </ul>
+                <pre><code class="language-c">
+int countdown(int n) {
+    if (n == 0) { // Base case: stop when n is 0
+        printf("Blast off!\n");
+        return 0;
+    }
+    printf("%d...\n", n);
+    return countdown(n - 1); // Recursive step: call itself with a smaller number
+}
+
+int main() {
+    countdown(3); // Output: 3... 2... 1... Blast off!
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 55: Practice Challenge 5: Simple Math Functions -->
+            <div class="slide-content center-content" id="slide-54">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-pencil-alt icon"></i>
+                <p class="text-2xl font-semibold mb-4">Create your own math functions!</p>
+                <p class="text-xl">Write two functions:</p>
+                <ul class="list-none text-xl mt-6">
+                    <li>`int subtract(int a, int b)`: Returns `a - b`.</li>
+                    <li>`float divide(float a, float b)`: Returns `a / b`.</li>
+                </ul>
+                <p class="text-xl mt-6">Call them from `main()` and print the results!</p>
+            </div>
+
+            <!-- Module 6: Collections of Data: Arrays & Strings (Slides 56-65) -->
+            <!-- Slide 56: Storing Many Things: Arrays -->
+            <div class="slide-content" id="slide-55">
+                <h2>Storing Many Things: Arrays</h2>
+                <i class="fas fa-boxes icon"></i>
+                <p>Imagine you have a list of similar things, like scores in a game, or names of your friends.</p>
+                <p>An <strong>Array</strong> is like a row of connected boxes, all holding the *same type* of stuff.</p>
+                <ul>
+                    <li>All elements must be the same data type (e.g., all `int`s, or all `char`s).</li>
+                    <li>They are stored right next to each other in the computer's memory.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 57: One-Dimensional Arrays: Lists of Data -->
+            <div class="slide-content" id="slide-56">
+                <h2>One-Dimensional Arrays: Lists of Data</h2>
+                <i class="fas fa-list icon"></i>
+                <p>This is the simplest kind of array, like a single list of items.</p>
+                <pre><code class="language-c">
+int scores[5]; // An array named 'scores' that can hold 5 integers
+                </code></pre>
+                <ul>
+                    <li>`int` is the type of data.</li>
+                    <li>`scores` is the name of our array.</li>
+                    <li>`[5]` means it has 5 spots (or "elements").</li>
+                </ul>
+            </div>
+
+            <!-- Slide 58: Accessing Array Elements -->
+            <div class="slide-content" id="slide-57">
+                <h2>Accessing Array Elements: Finding Your Box</h2>
+                <i class="fas fa-search icon"></i>
+                <p>How do you get to a specific box in the row?</p>
+                <ul>
+                    <li>You use its <strong>index</strong> (its position number).</li>
+                    <li>In C, the first box is always at index <strong>0</strong>, not 1!</li>
+                    <li>So, for an array of 5 elements, the indices are 0, 1, 2, 3, 4.</li>
+                </ul>
+                <pre><code class="language-c">
+int numbers[3] = {10, 20, 30};
+printf("First number: %d\n", numbers[0]); // Output: 10
+printf("Third number: %d\n", numbers[2]); // Output: 30
+
+numbers[1] = 25; // Change the second number to 25
+                </code></pre>
+            </div>
+
+            <!-- Slide 59: Initializing Arrays -->
+            <div class="slide-content" id="slide-58">
+                <h2>Initializing Arrays: Filling Your Boxes</h2>
+                <i class="fas fa-fill-drip icon"></i>
+                <p>You can put values into your array boxes when you declare them:</p>
+                <pre><code class="language-c">
+int scores[4] = {95, 80, 75, 90}; // All 4 elements filled
+
+int levels[] = {1, 2, 3}; // C figures out the size (3 elements)
+
+int emptyArray[5] = {0}; // Initializes all 5 elements to 0
+                </code></pre>
+                <p class="mt-4">If you don't fill all of them, the rest get filled with 0s (for numbers).</p>
+            </div>
+
+            <!-- Slide 60: Multi-Dimensional Arrays: Grids of Data -->
+            <div class="slide-content" id="slide-59">
+                <h2>Multi-Dimensional Arrays: Grids of Data</h2>
+                <i class="fas fa-th icon"></i>
+                <p>Imagine a spreadsheet or a game board (like Tic-Tac-Toe). That's a 2D array!</p>
+                <ul>
+                    <li>It's like an array of arrays.</li>
+                    <li>You need two indices: one for the row, one for the column.</li>
+                </ul>
+                <pre><code class="language-c">
+int gameBoard[3][3]; // A 3x3 game board
+gameBoard[0][0] = 1; // Top-left corner
+gameBoard[1][2] = 5; // Middle row, right column
+                </code></pre>
+            </div>
+
+            <!-- Slide 61: Strings: Words and Sentences in C -->
+            <div class="slide-content" id="slide-60">
+                <h2>Strings: Words and Sentences in C</h2>
+                <i class="fas fa-quote-left icon"></i>
+                <p>In C, there's no special "string" data type like in some other languages.</p>
+                <p>A <strong>string is just an array of characters</strong>!</p>
+                <pre><code class="language-c">
+char greeting[] = "Hello"; // An array of characters: 'H', 'e', 'l', 'l', 'o'
+                </code></pre>
+                <p class="mt-4">The computer knows it's a string because of a special hidden character at the end...</p>
+            </div>
+
+            <!-- Slide 62: The Null Terminator (`\0`) -->
+            <div class="slide-content" id="slide-61">
+                <h2>The Null Terminator: The String's End Mark! (`\0`)</h2>
+                <i class="fas fa-stop icon"></i>
+                <p>Every string in C *must* end with a special character called the <strong>null terminator</strong>. It looks like `\0`.</p>
+                <ul>
+                    <li>It tells C functions where the string finishes.</li>
+                    <li>When you write `"Hello"`, C actually stores `'H', 'e', 'l', 'l', 'o', '\0'`.</li>
+                    <li>So, `"Hello"` (5 letters) needs 6 spaces in memory!</li>
+                </ul>
+                <pre><code class="language-c">
+char name[6] = {'B', 'o', 'b', '\0'}; // Correct way to manually terminate
+printf("%s\n", name); // Prints "Bob"
+                </code></pre>
+            </div>
+
+            <!-- Slide 63: String Input/Output -->
+            <div class="slide-content" id="slide-62">
+                <h2>String Input/Output</h2>
+                <i class="fas fa-comment-dots icon"></i>
+                <p>How do we get strings from the user or print them?</p>
+                <ul>
+                    <li><strong>`printf("%s", myString);`</strong>: Prints a string.</li>
+                    <li><strong>`fgets(myString, size, stdin);`</strong>: Reads a line of text from the keyboard (safer than `gets()`).</li>
+                    <li><strong>`puts(myString);`</strong>: Prints a string and adds a new line automatically.</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    char city[20];
+    printf("What city are you from? ");
+    fgets(city, sizeof(city), stdin); // Reads input safely
+    printf("You are from: %s", city); // %s prints the string
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 64: String Operations: Length (`strlen`) -->
+            <div class="slide-content" id="slide-63">
+                <h2>String Operations: Length (`strlen`)</h2>
+                <i class="fas fa-text-width icon"></i>
+                <p>How long is a string? The `strlen()` function tells you!</p>
+                <ul>
+                    <li>It counts characters until it finds the `\0` (null terminator).</li>
+                    <li>You need to `#include <string.h>` to use it.</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt; // For strlen
+
+int main() {
+    char word[] = "Coding";
+    int len = strlen(word);
+    printf("The word '%s' has %d letters.\n", word, len); // Output: 6
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 65: String Operations: Copying (`strcpy`, `strncpy`) -->
+            <div class="slide-content" id="slide-64">
+                <h2>String Operations: Copying (`strcpy`, `strncpy`)</h2>
+                <i class="fas fa-copy icon"></i>
+                <p>You can't just use `=` to copy strings! You need special functions:</p>
+                <ul>
+                    <li><strong>`strcpy(destination, source)`:</strong> Copies the `source` string to `destination`.</li>
+                    <li><strong>`strncpy(destination, source, max_chars)`:</strong> Copies up to `max_chars`. This is <strong>safer</strong> because it helps prevent copying too much and overflowing your box!</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;string.h&gt;
+int main() {
+    char original[] = "Hello";
+    char copy[10]; // Make sure 'copy' is big enough!
+    strcpy(copy, original); // copy now holds "Hello"
+    printf("Copy: %s\n", copy);
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Module 7: Memory & Pointers (Simplified) (Slides 66-75) -->
+            <!-- Slide 66: Computer's Memory: "Address Book" Analogy -->
+            <div class="slide-content" id="slide-65">
+                <h2>Computer's Memory: The "Address Book"</h2>
+                <i class="fas fa-memory icon"></i>
+                <p>Imagine your computer's memory as a giant building with many, many apartments.</p>
+                <ul>
+                    <li>Each apartment has a unique <strong>address</strong> (like `Apartment 101`, `Apartment 205`).</li>
+                    <li>Variables are like the people living in those apartments.</li>
+                    <li>When you declare a variable, C finds an empty apartment for it.</li>
+                </ul>
+                <p class="mt-4">Pointers are how we keep track of these addresses!</p>
+            </div>
+
+            <!-- Slide 67: Pointers: Variables that Store Addresses -->
+            <div class="slide-content" id="slide-66">
+                <h2>Pointers: Variables that Store Addresses</h2>
+                <i class="fas fa-map-marker-alt icon"></i>
+                <p>A <strong>pointer</strong> is a special type of variable that doesn't store a normal value (like a number or a letter).</p>
+                <p>Instead, it stores the <strong>memory address</strong> of another variable.</p>
+                <ul>
+                    <li>Think of a pointer as a sticky note that says: "Go to Apartment 101 to find the number 5!"</li>
+                </ul>
+            </div>
+
+            <!-- Slide 68: Declaring Pointers -->
+            <div class="slide-content" id="slide-67">
+                <h2>Declaring Pointers: Making an "Address Note"</h2>
+                <i class="fas fa-hand-point-right icon"></i>
+                <p>To declare a pointer, you use an asterisk (`*`) before its name:</p>
+                <pre><code class="language-c">
+int *myPointer; // This is a pointer that can store the address of an 'int' variable.
+                </code></pre>
+                <ul>
+                    <li>The `int` tells C what *type of data* is at the address the pointer points to.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 69: The `&` (Address-of) Operator -->
+            <div class="slide-content" id="slide-68">
+                <h2>The `&` (Address-of) Operator: "Where is it?"</h2>
+                <i class="fas fa-location-arrow icon"></i>
+                <p>The `&` symbol (ampersand) is used to find the <strong>memory address</strong> of a variable.</p>
+                <pre><code class="language-c">
+int score = 100;
+int *scoreAddress; // Declare a pointer
+
+scoreAddress = &score; // 'scoreAddress' now holds the memory address of 'score'
+
+printf("Score is: %d\n", score);
+printf("Address of score: %p\n", (void*)scoreAddress); // %p prints an address
+                </code></pre>
+            </div>
+
+            <!-- Slide 70: The `*` (Dereference) Operator -->
+            <div class="slide-content" id="slide-69">
+                <h2>The `*` (Dereference) Operator: "What's inside?"</h2>
+                <i class="fas fa-box-open icon"></i>
+                <p>The `*` symbol (when used *after* declaring a pointer) is called the <strong>dereference operator</strong>.</p>
+                <ul>
+                    <li>It means "go to the address stored in this pointer and get the value there."</li>
+                </ul>
+                <pre><code class="language-c">
+int value = 25;
+int *valuePtr = &value; // valuePtr holds the address of 'value'
+
+printf("Value using variable: %d\n", value);
+printf("Value using pointer: %d\n", *valuePtr); // Dereference to get 25
+
+*valuePtr = 30; // Change the value at the address! 'value' is now 30!
+printf("New value: %d\n", value);
+                </code></pre>
+            </div>
+
+            <!-- Slide 71: Passing by Reference (using Pointers) -->
+            <div class="slide-content" id="slide-70">
+                <h2>Passing by Reference: "Giving the Address"</h2>
+                <i class="fas fa-share-alt icon"></i>
+                <p>Remember "pass by value" where functions get a copy?</p>
+                <p>With pointers, you can "pass by reference" – you give the function the *actual address* of the variable.</p>
+                <ul>
+                    <li>This means the function can change the original variable!</li>
+                </ul>
+                <pre><code class="language-c">
+void doubleIt(int *numberAddress) {
+    *numberAddress = (*numberAddress) * 2; // Change the original value
+}
+
+int main() {
+    int myScore = 10;
+    printf("Before: %d\n", myScore); // 10
+    doubleIt(&myScore); // Pass the address of myScore
+    printf("After: %d\n", myScore); // 20! It changed!
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 72: Dynamic Memory: Getting More Memory -->
+            <div class="slide-content" id="slide-71">
+                <h2>Dynamic Memory: Getting More Memory When You Need It</h2>
+                <i class="fas fa-expand-arrows-alt icon"></i>
+                <p>What if you don't know how many "boxes" you'll need when you write your program?</p>
+                <ul>
+                    <li><strong>Dynamic memory allocation</strong> lets your program ask for more memory *while it's running*!</li>
+                    <li>The `malloc()` function (`memory allocate`) asks the computer for a block of memory.</li>
+                    <li>It gives you back a pointer to that new memory.</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdlib.h&gt; // For malloc
+int *myNumbers;
+int count = 5;
+myNumbers = (int *) malloc(count * sizeof(int)); // Ask for space for 5 integers
+
+if (myNumbers == NULL) { // Always check if it worked!
+    printf("Oh no, couldn't get memory!\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 73: Giving Memory Back: `free` -->
+            <div class="slide-content" id="slide-72">
+                <h2>Giving Memory Back: `free`</h2>
+                <i class="fas fa-trash-restore-alt icon"></i>
+                <p>When you're done with memory you asked for using `malloc`, you *must* give it back to the computer!</p>
+                <ul>
+                    <li>The `free()` function returns the memory.</li>
+                    <li>If you don't `free()` memory, your program will keep holding onto it, even if it doesn't need it. This is called a <strong>memory leak</strong>.</li>
+                    <li>Memory leaks can make your computer slow or even crash!</li>
+                </ul>
+                <pre><code class="language-c">
+int *myNumbers = (int *) malloc(5 * sizeof(int));
+// ... use myNumbers ...
+free(myNumbers); // Give the memory back!
+myNumbers = NULL; // Important: Set pointer to NULL after freeing!
+                </code></pre>
+            </div>
+
+            <!-- Slide 74: Common Pointer Mistakes -->
+            <div class="slide-content" id="slide-73">
+                <h2>Common Pointer Mistakes: Watch Out!</h2>
+                <i class="fas fa-exclamation-triangle icon"></i>
+                <ul>
+                    <li><strong>Dangling Pointer:</strong> A pointer that points to memory that has been `free`d. If you try to use it, your program might crash! Always set to `NULL` after `free`.</li>
+                    <li><strong>Null Pointer Dereference:</strong> Trying to use a pointer that is `NULL`. This also crashes your program! Always check if a pointer is `NULL` before using it.</li>
+                    <li><strong>Wild Pointer:</strong> A pointer that was never given a valid address. It points to a random place, which can cause weird bugs! Always initialize pointers (e.g., to `NULL`).</li>
+                </ul>
+            </div>
+
+            <!-- Slide 75: Practice Challenge 6: Simple Pointer Fun -->
+            <div class="slide-content center-content" id="slide-74">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-puzzle-piece icon"></i>
+                <p class="text-2xl font-semibold mb-4">Pointer Detective!</p>
+                <p class="text-xl">Write a program:</p>
+                <ul class="list-none text-xl mt-6">
+                    <li>Declare an `int` variable and give it a value.</li>
+                    <li>Declare an `int` pointer.</li>
+                    <li>Make the pointer point to your `int` variable.</li>
+                    <li>Print the value of the `int` variable using the pointer!</li>
+                </ul>
+            </div>
+
+            <!-- Module 8: More Data Structures & Concepts (Simplified) (Slides 76-85) -->
+            <!-- Slide 76: Grouping Different Things: Structures (`struct`) -->
+            <div class="slide-content" id="slide-75">
+                <h2>Grouping Different Things: Structures (`struct`)</h2>
+                <i class="fas fa-folder-open icon"></i>
+                <p>Imagine you want to describe your favorite pet. It has a name (text), an age (number), and maybe a favorite toy (text).</p>
+                <p>A <strong>Structure (`struct`)</strong> lets you group different types of information together under one name!</p>
+                <pre><code class="language-c">
+struct Pet {
+    char name[20]; // Name of the pet
+    int age;        // Age of the pet
+    float weight;   // Weight of the pet
+};
+                </code></pre>
+            </div>
+
+            <!-- Slide 77: Accessing Structure Members -->
+            <div class="slide-content" id="slide-76">
+                <h2>Accessing Structure Members: Getting Info Out</h2>
+                <i class="fas fa-dot-circle icon"></i>
+                <p>Once you have a `struct` variable, you use the <strong>dot operator (`.`)</strong> to get to its individual pieces of information.</p>
+                <pre><code class="language-c">
+#include &lt;string.h&gt; // For strcpy
+struct Pet myDog;
+strcpy(myDog.name, "Buddy"); // Set the name
+myDog.age = 5;               // Set the age
+myDog.weight = 15.5f;
+
+printf("My dog's name is %s, and he is %d years old.\n", myDog.name, myDog.age);
+                </code></pre>
+                <p class="mt-4">If you have a pointer to a struct, you use the <strong>arrow operator (`->`)</strong>!</p>
+            </div>
+
+            <!-- Slide 78: Unions: Sharing Memory -->
+            <div class="slide-content" id="slide-77">
+                <h2>Unions: Sharing Memory (Advanced Concept)</h2>
+                <i class="fas fa-share-square icon"></i>
+                <p>Unions are like special boxes where different items can sit in the *same spot*, but only one at a time.</p>
+                <ul>
+                    <li>It saves memory because it only makes space for the *biggest* item.</li>
+                    <li>If you put an `int` in, then a `float`, the `int` data gets overwritten!</li>
+                <li>This is a more advanced concept, used when memory is super tight.</li>
+                </ul>
+                <pre><code class="language-c">
+union Data {
+    int i;
+    float f;
+};
+union Data myData;
+myData.i = 10; // myData now holds 10 as an integer
+myData.f = 20.5f; // myData now holds 20.5 as a float (the int 10 is gone!)
+                </code></pre>
+            </div>
+
+            <!-- Slide 79: Enumerations (`enum`): Naming Numbers -->
+            <div class="slide-content" id="slide-78">
+                <h2>Enumerations (`enum`): Naming Numbers</h2>
+                <i class="fas fa-tags icon"></i>
+                <p>Sometimes you have a list of choices, like days of the week or colors. `enum` lets you give names to numbers, making your code easier to read.</p>
+                <pre><code class="language-c">
+enum Day { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY };
+// MONDAY is 0, TUESDAY is 1, and so on by default!
+
+enum Day today = WEDNESDAY;
+printf("Today is day number: %d\n", today); // Output: 2
+                </code></pre>
+                <p class="mt-4">It's like creating your own special list of named constants!</p>
+            </div>
+
+            <!-- Slide 80: `typedef`: Giving New Names to Types -->
+            <div class="slide-content" id="slide-79">
+                <h2>`typedef`: Giving New Names to Types</h2>
+                <i class="fas fa-signature icon"></i>
+                <p>The `typedef` keyword lets you create a new, shorter, or more descriptive name for an existing data type.</p>
+                <ul>
+                    <li>Makes your code cleaner, especially with `struct`s and pointers.</li>
+                </ul>
+                <pre><code class="language-c">
+typedef int WholeNumber; // Now 'WholeNumber' is just another name for 'int'
+WholeNumber age = 10;
+
+typedef struct {
+    int x;
+    int y;
+} Point; // Now you can just say 'Point' instead of 'struct Point'
+Point myLocation = {10, 20};
+                </code></pre>
+            </div>
+
+            <!-- Slide 81: Files: Saving Your Work -->
+            <div class="slide-content" id="slide-80">
+                <h2>Files: Saving Your Work</h2>
+                <i class="fas fa-save icon"></i>
+                <p>When your program finishes, all its variables disappear! What if you want to save data for later?</p>
+                <ul>
+                    <li>You can save data to a <strong>file</strong> on your computer's hard drive.</li>
+                    <li>Files let your program remember things even after it closes.</li>
+                    <li>Think of it like writing notes in a notebook.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 82: Opening and Closing Files -->
+            <div class="slide-content" id="slide-81">
+                <h2>Opening and Closing Files</h2>
+                <i class="fas fa-folder-open icon"></i>
+                <p>Before you can read from or write to a file, you need to "open" it. When you're done, you "close" it.</p>
+                <ul>
+                    <li><strong>`fopen()`:</strong> Opens a file. You tell it the file name and how you want to use it (read, write, append).</li>
+                    <li><strong>`fclose()`:</strong> Closes a file. This is super important to save your changes and clean up!</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    FILE *myFile; // This is a special pointer for files
+    myFile = fopen("my_notes.txt", "w"); // Open for writing ('w')
+    if (myFile == NULL) { // Always check if opening worked!
+        printf("Error opening file!\n");
+        return 1;
+    }
+    fprintf(myFile, "Hello, file!\n"); // Write to the file
+    fclose(myFile); // Close the file
+    printf("Notes saved!\n");
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 83: Reading from Files -->
+            <div class="slide-content" id="slide-82">
+                <h2>Reading from Files</h2>
+                <i class="fas fa-file-alt icon"></i>
+                <p>Once a file is open for reading, you can get information from it.</p>
+                <ul>
+                    <li><strong>`fgetc(file_pointer)`:</strong> Reads one character at a time.</li>
+                    <li><strong>`fgets(buffer, size, file_pointer)`:</strong> Reads a whole line of text.</li>
+                    <li><strong>`fscanf(file_pointer, format, ...)`:</strong> Reads formatted data (like numbers or words).</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    FILE *myFile = fopen("my_notes.txt", "r"); // Open for reading ('r')
+    if (myFile == NULL) return 1;
+    char line[100];
+    if (fgets(line, sizeof(line), myFile) != NULL) {
+        printf("Read from file: %s", line);
+    }
+    fclose(myFile);
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 84: Writing to Files -->
+            <div class="slide-content" id="slide-83">
+                <h2>Writing to Files</h2>
+                <i class="fas fa-file-export icon"></i>
+                <p>To put information into a file, you use writing functions.</p>
+                <ul>
+                    <li><strong>`fputc(character, file_pointer)`:</strong> Writes one character.</li>
+                    <li><strong>`fputs(string, file_pointer)`:</strong> Writes a whole string.</li>
+                    <li><strong>`fprintf(file_pointer, format, ...)`:</strong> Writes formatted data (like `printf` but to a file).</li>
+                </ul>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main() {
+    FILE *myFile = fopen("scores.txt", "a"); // Open for appending ('a')
+    if (myFile == NULL) return 1;
+    int score = 95;
+    fprintf(myFile, "Player Score: %d\n", score);
+    fclose(myFile);
+    printf("Score saved!\n");
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 85: Practice Challenge 7: Simple Data Saver -->
+            <div class="slide-content center-content" id="slide-84">
+                <h2>Challenge Time!</h2>
+                <i class="fas fa-database icon"></i>
+                <p class="text-2xl font-semibold mb-4">Make a simple "Diary" program!</p>
+                <p class="text-xl">Ask the user to type a short message.</p>
+                <p class="text-xl">Save that message to a file called `my_diary.txt`.</p>
+                <p class="text-xl mt-6">Then, run the program again and make it read and print the message from the file!</p>
+            </div>
+
+            <!-- Module 9: Advanced Topics & Best Practices (Simplified) (Slides 86-95) -->
+            <!-- Slide 86: Preprocessor Directives: Instructions Before Compiling -->
+            <div class="slide-content" id="slide-85">
+                <h2>Preprocessor Directives: Instructions Before Compiling</h2>
+                <i class="fas fa-cogs icon"></i>
+                <p>These are special commands that start with `#` (like `#include`). They tell the compiler to do something *before* it even starts translating your code.</p>
+                <ul>
+                    <li><strong>`#include`:</strong> Brings in code from other files (like `stdio.h`).</li>
+                    <li><strong>`#define`:</strong> Lets you create shortcuts for numbers or small pieces of code.</li>
+                </ul>
+                <pre><code class="language-c">
+#define MAX_HEALTH 100 // MAX_HEALTH will be replaced with 100 everywhere it's used.
+int playerHealth = MAX_HEALTH;
+                </code></pre>
+            </div>
+
+            <!-- Slide 87: Conditional Compilation -->
+            <div class="slide-content" id="slide-86">
+                <h2>Conditional Compilation: Smart Code Building</h2>
+                <i class="fas fa-code-branch icon"></i>
+                <p>Sometimes you want parts of your code to only be included if certain conditions are true. This is called conditional compilation.</p>
+                <ul>
+                    <li><strong>`#ifdef DEBUG`</strong>: If `DEBUG` is defined, include this code.</li>
+                    <li><strong>`#ifndef RELEASE`</strong>: If `RELEASE` is NOT defined, include this code.</li>
+                    <li><strong>`#endif`</strong>: Marks the end of the conditional block.</li>
+                </ul>
+                <pre><code class="language-c">
+#define DEBUG_MODE
+#ifdef DEBUG_MODE
+    printf("Debugging is ON!\n");
+#endif
+                </code></pre>
+            </div>
+
+            <!-- Slide 88: Command Line Arguments -->
+            <div class="slide-content" id="slide-87">
+                <h2>Command Line Arguments: Talking to Your Program</h2>
+                <i class="fas fa-terminal icon"></i>
+                <p>You can give your program extra information right when you run it from the command line!</p>
+                <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+int main(int argc, char *argv[]) {
+    // argc: how many words you typed (including program name)
+    // argv: an array of those words (strings)
+    printf("You typed %d words.\n", argc);
+    printf("First word: %s\n", argv[0]); // This is usually the program's name
+    if (argc > 1) {
+        printf("Your first extra word: %s\n", argv[1]);
+    }
+    return 0;
+}
+// If you run: ./myprogram hello world
+// Output: You typed 3 words. First word: ./myprogram. Your first extra word: hello
+                </code></pre>
+            </div>
+
+            <!-- Slide 89: Function Pointers: Functions as Variables -->
+            <div class="slide-content" id="slide-88">
+                <h2>Function Pointers: Functions as Variables</h2>
+                <i class="fas fa-hand-holding-usd icon"></i>
+                <p>This is a bit tricky, but super cool!</p>
+                <ul>
+                    <li>A function pointer is a variable that stores the *address* of a function.</li>
+                    <li>It lets you choose which function to call *while your program is running*!</li>
+                    <li>Imagine a remote control that can point to different TVs (functions) and turn them on.</li>
+                </ul>
+                <pre><code class="language-c">
+void sayHi() { printf("Hi!\n"); }
+void sayBye() { printf("Bye!\n"); }
+
+int main() {
+    void (*myFunctionPtr)(); // Declare a function pointer
+    myFunctionPtr = sayHi; // Point it to sayHi
+    myFunctionPtr(); // Call sayHi() using the pointer! (Output: Hi!)
+    myFunctionPtr = sayBye; // Now point it to sayBye
+    myFunctionPtr(); // Call sayBye()! (Output: Bye!)
+    return 0;
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 90: Bitwise Operations: Tiny Controls -->
+            <div class="slide-content" id="slide-89">
+                <h2>Bitwise Operations: Tiny Controls</h2>
+                <i class="fas fa-toggle-on icon"></i>
+                <p>Computers store everything as 0s and 1s (bits). Bitwise operations let you control these individual bits!</p>
+                <ul>
+                    <li>Like tiny on/off switches.</li>
+                    <li>Super useful for making programs very fast or when talking to hardware.</li>
+                    <li>Operators: `&` (AND), `|` (OR), `^` (XOR), `~` (NOT), `<<` (Left Shift), `>>` (Right Shift).</li>
+                </ul>
+                <pre><code class="language-c">
+unsigned char flags = 0b00000001; // Only the first light is ON
+flags |= 0b00000010; // Turn on the second light (flags is now 0b00000011)
+if (flags & 0b00000001) {
+    printf("First light is ON!\n");
+}
+                </code></pre>
+            </div>
+
+            <!-- Slide 91: Debugging: Becoming a Bug Detective -->
+            <div class="slide-content" id="slide-90">
+                <h2>Debugging: Becoming a Bug Detective</h2>
+                <i class="fas fa-bug icon"></i>
+                <p>What happens when your code doesn't work the way you want? That's a <strong>bug</strong>!</p>
+                <p><strong>Debugging</strong> is the process of finding and fixing those bugs.</p>
+                <ul>
+                    <li>It's like being a detective, looking for clues in your code.</li>
+                    <li>Don't worry, everyone gets bugs! It's part of learning.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 92: Common Errors and How to Fix Them -->
+            <div class="slide-content" id="slide-91">
+                <h2>Common Errors and How to Fix Them</h2>
+                <i class="fas fa-wrench icon"></i>
+                <ul>
+                    <li><strong>Syntax Errors:</strong> Typos, missing semicolons, wrong curly braces.
+                        <ul><li>Compiler will tell you! Read the error message carefully.</li></ul></li>
+                    <li><strong>Logic Errors:</strong> Code runs, but does the wrong thing (e.g., calculator adds instead of subtracts).
+                        <ul><li>Use `printf` to show values at different steps.</li><li>Step through code with a debugger.</li></ul></li>
+                    <li><strong>Runtime Errors:</strong> Program crashes while running (e.g., trying to use a `NULL` pointer).
+                        <ul><li>Check `if (pointer == NULL)` before using pointers.</li><li>Look for "Segmentation fault" messages.</li></ul></li>
+                </ul>
+            </div>
+
+            <!-- Slide 93: Writing Clean Code: Making Your Code Easy to Read -->
+            <div class="slide-content" id="slide-92">
+                <h2>Writing Clean Code: Making Your Code Easy to Read</h2>
+                <i class="fas fa-broom icon"></i>
+                <p>Imagine reading a book with no paragraphs, no spaces, and strange words. Hard, right?</p>
+                <p>Clean code is like a well-written book for programmers!</p>
+                <ul>
+                    <li><strong>Comments:</strong> Explain what your code does (`// like this`).</li>
+                    <li><strong>Good Names:</strong> Use clear names for variables (`playerScore` instead of `x`).</li>
+                    <li><strong>Neat Layout:</strong> Use spaces and tabs to make it easy to follow.</li>
+                    <li><strong>Break into Functions:</strong> Keep functions small and focused on one job.</li>
+                </ul>
+            </div>
+
+            <!-- Slide 94: Why Clean Code Matters -->
+            <div class="slide-content" id="slide-93">
+                <h2>Why Clean Code Matters</h2>
+                <i class="fas fa-users icon"></i>
+                <ul>
+                    <li><strong>For You:</strong> You'll understand your own code later!</li>
+                    <li><strong>For Others:</strong> If you work in a team, others can understand and help.</li>
+                    <li><strong>Fewer Bugs:</strong> Clearer code means fewer mistakes.</li>
+                    <li><strong>Easier to Change:</strong> When you want to add new features, it's a breeze!</li>
+                </ul>
+                <p class="mt-4">It's a superpower for teamwork and future you!</p>
+            </div>
+
+            <!-- Slide 95: Resources for Learning More -->
+            <div class="slide-content" id="slide-94">
+                <h2>Resources for Learning More</h2>
+                <i class="fas fa-graduation-cap icon"></i>
+                <p>Your C adventure doesn't stop here! Keep practicing and exploring:</p>
+                <ul>
+                    <li><strong>Online Practice:</strong> CodeChef, GeeksforGeeks, w3resource.</li>
+                    <li><strong>Interactive Tutorials:</strong> learn-c.org (try coding right in your browser!).</li>
+                    <li><strong>Visual Debugging:</b> pythontutor.com/c.html (see your code run step-by-step!).</li>
+                    <li><strong>Flowchart Maker:</strong> codetoflow.com (turn code into pictures!).</li>
+                    <li><strong>Books:</strong> Ask your instructor for good C books for kids!</li>
+                </ul>
+            </div>
+
+            <!-- Module 10: What's Next? (Slides 96-100) -->
+            <!-- Slide 96: What's Next After C? -->
+            <div class="slide-content" id="slide-95">
+                <h2>What's Next After C?</h2>
+                <i class="fas fa-forward icon"></i>
+                <p>C is a fantastic start! Once you master C, learning other languages becomes much easier because you understand the basics.</p>
+                <ul>
+                    <li><strong>C++:</strong> Like C, but with more tools for building big, complex programs (Object-Oriented Programming).</li>
+                    <li><strong>Python:</strong> Easier to read and write, great for web, data science, and quick projects.</li>
+                    <li><strong>Java:</strong> Used for big applications, Android apps, and enterprise systems.</li>
+                </ul>
+                <p class="mt-4">C is your foundation for a whole world of programming!</p>
+            </div>
+
+            <!-- Slide 97: Data Structures & Algorithms: The Next Adventure -->
+            <div class="slide-content" id="slide-96">
+                <h2>Data Structures & Algorithms: The Next Adventure</h2>
+                <i class="fas fa-sitemap icon"></i>
+                <p>Once you know C, you're ready for the next big challenge: Data Structures and Algorithms!</p>
+                <ul>
+                    <li><strong>Data Structures:</strong> Smart ways to organize data (like special kinds of lists, trees, and graphs).</li>
+                    <li><strong>Algorithms:</strong> Step-by-step recipes for solving problems (like super-fast ways to sort numbers or find things).</li>
+                </ul>
+                <p class="mt-4">C is perfect for learning these because it lets you see exactly how they work!</p>
+            </div>
+
+            <!-- Slide 98: C in the Real World: Games, Robots, OS -->
+            <div class="slide-content" id="slide-97">
+                <h2>C in the Real World: Games, Robots, OS</h2>
+                <i class="fas fa-globe-americas icon"></i>
+                <p>Remember those superpowers of C? They're used in real life every day!</p>
+                <ul>
+                    <li><strong>Gaming:</strong> The core of many game engines (like Unity, Unreal) uses C++.</li>
+                    <li><strong>Robotics:</strong> Programming tiny brains of robots and drones.</li>
+                    <li><strong>Operating Systems:</strong> The very heart of your computer's operating system.</li>
+                    <li><strong>Web Browsers:</strong> Parts of Chrome, Firefox are built with C/C++ for speed.</li>
+                </ul>
+                <p class="mt-4">You're learning a language used by pros all over the world!</p>
+            </div>
+
+            <!-- Slide 99: Your Journey Continues! -->
+            <div class="slide-content center-content" id="slide-98">
+                <h2>Your Coding Journey Continues!</h2>
+                <i class="fas fa-rocket icon"></i>
+                <p class="text-3xl font-bold mt-8 text-yellow-400">You've taken a huge step!</p>
+                <p class="text-2xl mt-4 text-gray-300">Keep practicing, keep exploring, and keep building!</p>
+                <p class="text-xl mt-8">The world of programming is waiting for your creativity!</p>
+            </div>
+
+            <!-- Slide 100: Thank You & Q&A -->
+            <div class="slide-content center-content" id="slide-99">
+                <h2>Thank You & Questions!</h2>
+                <i class="fas fa-hands-helping icon"></i>
+                <p class="text-4xl font-bold mb-4 text-white">Thank You, Awesome Bootcampers!</p>
+                <p class="text-3xl text-gray-300">Any Questions?</p>
+                <p class="mt-8 text-lg text-gray-400">Don't be shy! We're here to help you on your coding adventure.</p>
+            </div>
+
+        </div>
+
+        <div class="navigation-bar">
+            <button id="prevBtn" class="nav-button">Previous</button>
+            <span id="slideCounter" class="slide-counter">Slide 1 of 100</span>
+            <button id="nextBtn" class="nav-button">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide-content');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slideCounter');
+        let currentSlideIndex = 0;
+        const totalSlides = slides.length;
+
+        // Function to highlight C code syntax
+        function highlightCode() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                const originalText = block.textContent; // Get the plain text content
+
+                // Escape HTML entities to prevent them from being interpreted as tags during regex processing
+                let processedText = originalText.replace(/&/g, '&amp;')
+                                                .replace(/</g, '&lt;')
+                                                .replace(/>/g, '&gt;')
+                                                .replace(/"/g, '&quot;')
+                                                .replace(/'/g, '&#039;');
+
+                // Step 1: Temporarily replace comments with placeholders
+                const comments = [];
+                processedText = processedText.replace(/(\/\/.*?$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+                    const id = `__COMMENT_${comments.length}__`;
+                    comments.push(match);
+                    return id;
+                });
+
+                // Step 2: Apply highlighting for keywords, strings, numbers on the remaining text
+                processedText = processedText
+                    .replace(/\b(int|void|char|float|double|long|short|unsigned|struct|union|enum|typedef|const|static|extern|auto|register|if|else|switch|case|default|for|while|do|break|continue|return|goto|sizeof|NULL|FILE|stdin|stdout|stderr)\b/g, '<span class="code-keyword">$&</span>') // Keywords
+                    .replace(/&quot;([^&quot;]*)&quot;/g, '&quot;<span class="code-string">$1</span>&quot;') // Strings (using &quot; for escaped quotes)
+                    .replace(/&#039;([^&#039;]*)&#039;/g, '&#039;<span class="code-string">$1</span>&#039;') // Chars (using &#039; for escaped apostrophes)
+                    .replace(/\b(\d+(\.\d*)?([eE][+\-]?\d+)?)\b/g, '<span class="code-number">$&</span>'); // Numbers
+
+                // Step 3: Restore comments and wrap them in their span
+                comments.forEach((comment, index) => {
+                    const id = `__COMMENT_${index}__`;
+                    // The comment itself is already escaped, so just wrap it
+                    processedText = processedText.replace(new RegExp(id, 'g'), `<span class="code-comment">${comment}</span>`);
+                });
+
+                block.innerHTML = processedText;
+            });
+        }
+
+        function showSlide(index) {
+            if (index < 0 || index >= totalSlides) {
+                return; // Do nothing if index is out of bounds
+            }
+
+            // Hide all slides
+            slides.forEach((slide) => {
+                slide.classList.remove('active');
+            });
+
+            // Show the current slide
+            slides[index].classList.add('active');
+            currentSlideIndex = index;
+
+            // Update slide counter
+            slideCounter.textContent = `Slide ${currentSlideIndex + 1} of ${totalSlides}`;
+
+            // Enable/disable navigation buttons
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                showSlide(currentSlideIndex + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                showSlide(currentSlideIndex - 1);
+            }
+        }
+
+        // Event listeners for navigation buttons
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Initialize presentation
+        document.addEventListener('DOMContentLoaded', () => {
+            highlightCode(); // Highlight code on load
+            showSlide(currentSlideIndex);
+        });
+
+        // Optional: Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                e.preventDefault(); // Prevent page scrolling
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault(); // Prevent page scrolling
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
